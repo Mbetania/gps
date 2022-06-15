@@ -85,14 +85,30 @@ const App = () =>{
           origin: [convertToPoints(origin)]
         }
       
+      return new Promise((resolve, reject) =>{
+        ttapi.services
+          .matrixRouting(callParameters)
+        .then((matrixAPIResults) => {
+          const results = matrixAPIResults.matrix[0]
+          const resultsArray = results.map((result, index) =>{
+            return{
+              location: locations[index],
+              drivingtime: result.response.routeSummary.travelTimeInSeconds,
+            }
+          })
+          resultsArray.sort((a, b) => {
+            return a.drivingtime - b.drivingtime
+          })
+          const sortLocations = resultsArray.map((result) =>{
+            return result.location
+          })
+          resolve(sortLocations)
+        })
+
+          })
     }
 
 
-    // return new Promise((resolve, reject) =>{
-    //   ttapi.services
-    //   .matrixRouting(callParameters)
-
-    //? })
     map.on('click', (e) =>{
       destinations.push(e.lngLat)
       addDeliveryMarker(e.lngLat, map)
